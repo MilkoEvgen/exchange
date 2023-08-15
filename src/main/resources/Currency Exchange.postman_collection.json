@@ -1,0 +1,200 @@
+{
+	"info": {
+		"_postman_id": "d023d37d-f6b7-491e-a169-01b29f315ec0",
+		"name": "Currency Exchange",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27920381"
+	},
+	"item": [
+		{
+			"name": "GET currencies",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/exchange/currencies",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"exchange",
+						"currencies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST currencies",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/exchange/currencies?name=Brazilian Real&code=BRL&sign=R$",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"exchange",
+						"currencies"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "Brazilian Real"
+						},
+						{
+							"key": "code",
+							"value": "BRL"
+						},
+						{
+							"key": "sign",
+							"value": "R$"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET exchangeRates",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/exchange/exchangeRates",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"exchange",
+						"exchangeRates"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET exchangeRate/USDRUB",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/exchange/exchangeRate/USDRUB",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"exchange",
+						"exchangeRate",
+						"USDRUB"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST exchangeRates",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/exchange/exchangeRates?baseCurrencyCode=BYN&targetCurrencyCode=UAH&rate=14.63",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"exchange",
+						"exchangeRates"
+					],
+					"query": [
+						{
+							"key": "baseCurrencyCode",
+							"value": "BYN"
+						},
+						{
+							"key": "targetCurrencyCode",
+							"value": "UAH"
+						},
+						{
+							"key": "rate",
+							"value": "14.63"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PATCH exchangeRate/USDRUB",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/exchange/exchangeRate/USDRUB?rate=98.02",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"exchange",
+						"exchangeRate",
+						"USDRUB"
+					],
+					"query": [
+						{
+							"key": "rate",
+							"value": "98.02"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET exchange RYB/BYN",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/exchange/exchange?from=RUB&to=BYN&amount=1000",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"exchange",
+						"exchange"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "RUB"
+						},
+						{
+							"key": "to",
+							"value": "BYN"
+						},
+						{
+							"key": "amount",
+							"value": "1000"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
