@@ -21,7 +21,7 @@ public class ExchangeRateServlet extends HttpServlet {
     private final ExchangeRateDbStorage storage = new ExchangeRateDbStorage();
 
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, ServletException {
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         if (req.getMethod().equalsIgnoreCase("PATCH")) {
             doPatch(req, resp);
         } else {
@@ -31,10 +31,7 @@ public class ExchangeRateServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String codes = req.getPathInfo();
-        if (codes == null || codes.length() != 7) {
-            resp.setStatus(400);
-            return;
-        }
+        Validator.areCodesValid(resp, codes);
         String baseCode = codes.substring(1, 4);
         String targetCode = codes.substring(4, 7);
         try {
@@ -51,15 +48,12 @@ public class ExchangeRateServlet extends HttpServlet {
 
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String codes = req.getPathInfo();
-        if (codes == null || codes.length() != 7) {
-            resp.setStatus(400);
-            return;
-        }
+        Validator.areCodesValid(resp, codes);
         String baseCode = codes.substring(1, 4);
         String targetCode = codes.substring(4, 7);
         String rateCurrency = req.getParameter("rate");
         try {
-            Validator.areParametersValid(baseCode, targetCode, rateCurrency);
+            Validator.areRateParametersValid(baseCode, targetCode, rateCurrency);
             BigDecimal rate = BigDecimal.valueOf(Double.parseDouble(rateCurrency));
             Optional<ExchangeRate> optionalRate = storage.patchRate(baseCode, targetCode, rate);
             if (optionalRate.isPresent()){

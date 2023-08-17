@@ -1,5 +1,7 @@
 package servlets;
 
+import Validation.ValidationException;
+import Validation.Validator;
 import dao.CurrencyDbStorage;
 import model.Currency;
 import utils.ResponseUtils;
@@ -35,11 +37,9 @@ public class CurrenciesServlet extends HttpServlet {
         String code = req.getParameter("code");
         String name = req.getParameter("name");
         String sign = req.getParameter("sign");
-        if (code == null || code.isEmpty() || name == null || name.isEmpty() || sign == null || sign.isEmpty()) {
-            resp.setStatus(400);
-            return;
-        }
+
         try {
+            Validator.areCurrencyParametersValid(code, name, sign);
             Optional <Currency> currencyExists = storage.getCurrencyByCode(code);
             if (currencyExists.isPresent()){
                 resp.setStatus(409);
@@ -53,6 +53,8 @@ public class CurrenciesServlet extends HttpServlet {
             }
         } catch (SQLException e) {
             resp.setStatus(500);
+        } catch (ValidationException e){
+            resp.setStatus(400);
         }
     }
 }

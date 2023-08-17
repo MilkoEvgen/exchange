@@ -40,7 +40,7 @@ public class ExchangeRatesServlet extends HttpServlet {
         String targetCode = req.getParameter("targetCurrencyCode");
         String rateString = req.getParameter("rate");
         try {
-            Validator.areParametersValid(baseCode, targetCode, rateString);
+            Validator.areRateParametersValid(baseCode, targetCode, rateString);
             BigDecimal rate = BigDecimal.valueOf(Double.parseDouble(rateString));
             Optional<ExchangeRate> rateExists = storage.getRateByCodes(baseCode, targetCode);
             if (rateExists.isPresent()){
