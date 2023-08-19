@@ -12,14 +12,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/exchange/currencies",
+					"raw": "http://localhost:8080/currencies",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"exchange",
 						"currencies"
 					]
 				}
@@ -32,14 +31,13 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/exchange/currencies?name=Brazilian Real&code=BRL&sign=R$",
+					"raw": "http://localhost:8080/currencies?name=Brazilian Real&code=BRL&sign=R$",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"exchange",
 						"currencies"
 					],
 					"query": [
@@ -66,14 +64,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/exchange/exchangeRates",
+					"raw": "http://localhost:8080/exchangeRates",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"exchange",
 						"exchangeRates"
 					]
 				}
@@ -86,14 +83,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/exchange/exchangeRate/USDRUB",
+					"raw": "http://localhost:8080/exchangeRate/USDRUB",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"exchange",
 						"exchangeRate",
 						"USDRUB"
 					]
@@ -107,14 +103,13 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/exchange/exchangeRates?baseCurrencyCode=BYN&targetCurrencyCode=UAH&rate=14.63",
+					"raw": "http://localhost:8080/exchangeRates?baseCurrencyCode=BYN&targetCurrencyCode=UAH&rate=14.63",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"exchange",
 						"exchangeRates"
 					],
 					"query": [
@@ -141,14 +136,13 @@
 				"method": "PATCH",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/exchange/exchangeRate/USDRUB?rate=98.02",
+					"raw": "http://localhost:8080/exchangeRate/USDRUB?rate=98.02",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"exchange",
 						"exchangeRate",
 						"USDRUB"
 					],
@@ -168,14 +162,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/exchange/exchange?from=RUB&to=BYN&amount=1000",
+					"raw": "http://localhost:8080/exchange?from=RUB&to=BYN&amount=1000.5",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"exchange",
 						"exchange"
 					],
 					"query": [
@@ -189,7 +182,7 @@
 						},
 						{
 							"key": "amount",
-							"value": "1000"
+							"value": "1000.5"
 						}
 					]
 				}

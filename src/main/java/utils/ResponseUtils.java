@@ -21,5 +21,15 @@ public class ResponseUtils {
         }
     }
 
+    public static void setResponse(HttpServletResponse resp, Object object, int code) {
+        resp.setStatus(code);
+        try (PrintWriter writer = resp.getWriter()) {
+            String result = objectMapper.writeValueAsString(object);
+            writer.print(result);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
 }

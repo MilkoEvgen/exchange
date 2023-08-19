@@ -10,7 +10,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.List;
@@ -21,7 +20,7 @@ public class ExchangeRatesServlet extends HttpServlet {
     private final ExchangeRateDbStorage storage = new ExchangeRateDbStorage();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try {
             List<ExchangeRate> rates = storage.getAllRates();
             if (!rates.isEmpty()){
@@ -35,18 +34,13 @@ public class ExchangeRatesServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         String baseCode = req.getParameter("baseCurrencyCode");
         String targetCode = req.getParameter("targetCurrencyCode");
         String rateString = req.getParameter("rate");
         try {
             Validator.areRateParametersValid(baseCode, targetCode, rateString);
-            BigDecimal rate = BigDecimal.valueOf(Double.parseDouble(rateString));
-            Optional<ExchangeRate> rateExists = storage.getRateByCodes(baseCode, targetCode);
-            if (rateExists.isPresent()){
-                resp.setStatus(409);
-                return;
-            }
+            BigDecimal rate = new BigDecimal(rateString);
             Optional<ExchangeRate> optionalRate = storage.postRate(baseCode, targetCode, rate);
             if (optionalRate.isPresent()){
                 ResponseUtils.setResponse(resp, optionalRate.get());
@@ -54,10 +48,14 @@ public class ExchangeRatesServlet extends HttpServlet {
                 resp.setStatus(500);
             }
         } catch (ValidationException e) {
-            resp.setStatus(400);
-            ResponseUtils.setResponse(resp, e.getMessage());
+            ResponseUtils.setResponse(resp, e.getMessage(), 400);
         } catch (SQLException e) {
-            resp.setStatus(500);
+            if (e.getErrorCode() == 19) {
+                ResponseUtils.setResponse(resp, "Обменный курс " + baseCode + "/" + targetCode
+                        + " уже существует", 409);
+            } else {
+                resp.setStatus(500);
+            }
         }
     }
 }

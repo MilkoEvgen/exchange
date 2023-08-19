@@ -1,7 +1,8 @@
 package dao;
 
 import model.ExchangeRate;
-import utils.ConnectionToDb;
+import utils.ConnectionPool;
+
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -15,7 +16,7 @@ public class ExchangeRateDbStorage {
     public List<ExchangeRate> getAllRates() throws SQLException {
         List<ExchangeRate> rates = new ArrayList<>();
         String sql = "SELECT * FROM exchange_rates";
-        try (Connection connection = ConnectionToDb.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(sql)) {
             while (resultSet.next()) {
@@ -29,10 +30,10 @@ public class ExchangeRateDbStorage {
     public Optional<ExchangeRate> postRate(String base, String target, BigDecimal rate) throws SQLException {
         String sql = "INSERT INTO exchange_rates (base_currency_id, target_currency_id, rate) " +
                 "VALUES (?, ?, ?)";
-        try (Connection connection = ConnectionToDb.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, currencyDbStorage.getCurrencyByCode(base).get().getId());
-            statement.setInt(2, currencyDbStorage.getCurrencyByCode(target).get().getId());
+            statement.setInt(1, currencyDbStorage.getCurrencyByCode(base).getId());
+            statement.setInt(2, currencyDbStorage.getCurrencyByCode(target).getId());
             statement.setBigDecimal(3, rate);
             int affectedRows = statement.executeUpdate();
             if (affectedRows == 0) {
@@ -54,7 +55,7 @@ public class ExchangeRateDbStorage {
                 "SET rate = ? " +
                 "WHERE base_currency_id = (SELECT id FROM currencies WHERE code = ?) " +
                 "AND target_currency_id = (SELECT id FROM currencies WHERE code = ?)";
-        try (Connection connection = ConnectionToDb.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sqlPatch)) {
             statement.setBigDecimal(1, rate);
             statement.setString(2, baseCode);
@@ -73,7 +74,7 @@ public class ExchangeRateDbStorage {
                 "INNER JOIN currencies c on c.id = e.base_currency_id " +
                 "INNER JOIN currencies c2 on c2.id = e.target_currency_id " +
                 "WHERE c.code = ? AND c2.code = ?";
-        try (Connection connection = ConnectionToDb.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, baseCode);
             statement.setString(2, targetCode);
@@ -90,7 +91,7 @@ public class ExchangeRateDbStorage {
 
     private Optional<ExchangeRate> getRateById(int id) throws SQLException {
         String sql = "SELECT * FROM exchange_rates WHERE id = ?";
-        try (Connection connection = ConnectionToDb.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {

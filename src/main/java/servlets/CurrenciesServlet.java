@@ -18,11 +18,12 @@ import java.util.Optional;
 @WebServlet(name = "Currencies", urlPatterns = "/currencies")
 public class CurrenciesServlet extends HttpServlet {
     private final CurrencyDbStorage storage = new CurrencyDbStorage();
+
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try {
             List<Currency> currencies = storage.getAllCurrencies();
-            if (!currencies.isEmpty()){
+            if (!currencies.isEmpty()) {
                 ResponseUtils.setResponse(resp, currencies);
             } else {
                 resp.setStatus(404);
@@ -33,28 +34,26 @@ public class CurrenciesServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         String code = req.getParameter("code");
         String name = req.getParameter("name");
         String sign = req.getParameter("sign");
-
         try {
             Validator.areCurrencyParametersValid(code, name, sign);
-            Optional <Currency> currencyExists = storage.getCurrencyByCode(code);
-            if (currencyExists.isPresent()){
-                resp.setStatus(409);
-                return;
-            }
             Optional<Currency> optionalCurrency = storage.postCurrency(code, name, sign);
-            if (optionalCurrency.isPresent()){
+            if (optionalCurrency.isPresent()) {
                 ResponseUtils.setResponse(resp, optionalCurrency.get());
             } else {
                 resp.setStatus(500);
             }
         } catch (SQLException e) {
-            resp.setStatus(500);
-        } catch (ValidationException e){
-            resp.setStatus(400);
+            if (e.getErrorCode() == 19) {
+                ResponseUtils.setResponse(resp, "Валюта с кодом " + code + " уже существует", 409);
+            } else {
+                resp.setStatus(500);
+            }
+        } catch (ValidationException e) {
+            ResponseUtils.setResponse(resp, e.getMessage(), 400);
         }
     }
 }

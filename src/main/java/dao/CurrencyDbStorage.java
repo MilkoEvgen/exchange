@@ -1,7 +1,10 @@
 package dao;
 
+import Validation.CurrencyNotFoundException;
 import model.Currency;
-import utils.ConnectionToDb;
+import utils.ConnectionPool;
+
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,17 +12,16 @@ import java.util.Optional;
 
 public class CurrencyDbStorage {
 
-    public Optional<Currency> getCurrencyByCode(String code) throws SQLException {
+    public Currency getCurrencyByCode(String code) throws SQLException {
         String sql = "SELECT * FROM currencies WHERE code = ? LIMIT 1";
-        try (Connection connection = ConnectionToDb.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
              statement.setString(1, code);
              try (ResultSet resultSet = statement.executeQuery()) {
                  if (resultSet.next()){
-                     Currency currency = getCurrencyFromResultSet(resultSet);
-                     return Optional.of(currency);
+                     return getCurrencyFromResultSet(resultSet);
                  } else {
-                     return Optional.empty();
+                     throw new CurrencyNotFoundException(code + " : Валюта не найдена");
                  }
              }
         }
@@ -27,7 +29,7 @@ public class CurrencyDbStorage {
 
     public Optional<Currency> getCurrencyById(int id) throws SQLException {
         String sql = "SELECT * FROM currencies WHERE id = ? LIMIT 1";
-        try (Connection connection = ConnectionToDb.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -44,7 +46,7 @@ public class CurrencyDbStorage {
     public List<Currency> getAllCurrencies() throws SQLException {
         String sql = "SELECT * FROM currencies";
         List<Currency> currencies = new ArrayList<>();
-        try (Connection connection = ConnectionToDb.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              Statement statement = connection.createStatement()){
             try (ResultSet resultSet = statement.executeQuery(sql)) {
                 while (resultSet.next()){
@@ -60,7 +62,7 @@ public class CurrencyDbStorage {
         String sql = "INSERT INTO currencies (code, full_name, sign) VALUES (?, ?, ?)";
         int id;
         Currency currency = new Currency();
-        try (Connection connection = ConnectionToDb.getConnection();
+        try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, code);
             statement.setString(2, full_name);
@@ -72,7 +74,7 @@ public class CurrencyDbStorage {
                         id = resultSet.getInt(1);
                         currency.setId(id);
                         currency.setCode(code);
-                        currency.setFull_name(full_name);
+                        currency.setName(full_name);
                         currency.setSign(sign);
                         return Optional.of(currency);
                     }
@@ -88,7 +90,7 @@ public class CurrencyDbStorage {
         Currency currency = new Currency();
         currency.setId(resultSet.getInt("id"));
         currency.setCode(resultSet.getString("code"));
-        currency.setFull_name(resultSet.getString("full_name"));
+        currency.setName(resultSet.getString("full_name"));
         currency.setSign(resultSet.getString("sign"));
         return currency;
     }

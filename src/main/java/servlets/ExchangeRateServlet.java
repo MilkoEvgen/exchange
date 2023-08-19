@@ -1,7 +1,9 @@
 package servlets;
 
+import Validation.CurrencyNotFoundException;
 import Validation.ValidationException;
 import Validation.Validator;
+import dao.CurrencyDbStorage;
 import dao.ExchangeRateDbStorage;
 import model.ExchangeRate;
 import utils.ResponseUtils;
@@ -18,7 +20,8 @@ import java.util.Optional;
 
 @WebServlet(name="ExchangeRateServlet", urlPatterns = "/exchangeRate/*")
 public class ExchangeRateServlet extends HttpServlet {
-    private final ExchangeRateDbStorage storage = new ExchangeRateDbStorage();
+    private final CurrencyDbStorage currencyStorage = new CurrencyDbStorage();
+    private final ExchangeRateDbStorage exchangeRateStorage = new ExchangeRateDbStorage();
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
@@ -29,43 +32,58 @@ public class ExchangeRateServlet extends HttpServlet {
         }
     }
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String codes = req.getPathInfo();
-        Validator.areCodesValid(resp, codes);
-        String baseCode = codes.substring(1, 4);
-        String targetCode = codes.substring(4, 7);
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try {
-            Optional<ExchangeRate> rateOptional = storage.getRateByCodes(baseCode, targetCode);
+            String codes = req.getPathInfo();
+            Validator.areCodesValid(codes);
+            String baseCode = codes.substring(1, 4);
+            String targetCode = codes.substring(4, 7);
+            currencyStorage.getCurrencyByCode(baseCode);
+            currencyStorage.getCurrencyByCode(targetCode);
+            Optional<ExchangeRate> rateOptional = exchangeRateStorage.getRateByCodes(baseCode, targetCode);
             if (rateOptional.isPresent()){
                 ResponseUtils.setResponse(resp, rateOptional.get());
             } else {
-                resp.setStatus(404);
+                ResponseUtils.setResponse(resp, "Обменный курс " + baseCode + "/" + targetCode +
+                        " не найден", 404);
             }
         } catch (SQLException e) {
             resp.setStatus(500);
+        } catch (ValidationException e) {
+            ResponseUtils.setResponse(resp, e.getMessage(), 400);
+        } catch (CurrencyNotFoundException e){
+            ResponseUtils.setResponse(resp, e.getMessage(), 404);
         }
     }
 
-    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String codes = req.getPathInfo();
-        Validator.areCodesValid(resp, codes);
-        String baseCode = codes.substring(1, 4);
-        String targetCode = codes.substring(4, 7);
-        String rateCurrency = req.getParameter("rate");
+    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) {
         try {
+            String codes = req.getPathInfo();
+            Validator.areCodesValid(codes);
+            String baseCode = codes.substring(1, 4);
+            String targetCode = codes.substring(4, 7);
+            currencyStorage.getCurrencyByCode(baseCode);
+            currencyStorage.getCurrencyByCode(targetCode);
+            String rateCurrency = req.getParameter("rate");
             Validator.areRateParametersValid(baseCode, targetCode, rateCurrency);
             BigDecimal rate = BigDecimal.valueOf(Double.parseDouble(rateCurrency));
-            Optional<ExchangeRate> optionalRate = storage.patchRate(baseCode, targetCode, rate);
+            Optional<ExchangeRate> optionalRate = exchangeRateStorage.getRateByCodes(baseCode, targetCode);
+            if (optionalRate.isEmpty()){
+                ResponseUtils.setResponse(resp, "Валютная пара отсутствует в базе данных", 404);
+                return;
+            }
+            optionalRate = exchangeRateStorage.patchRate(baseCode, targetCode, rate);
             if (optionalRate.isPresent()){
                 ResponseUtils.setResponse(resp, optionalRate.get());
             } else {
                 resp.setStatus(500);
             }
         } catch (ValidationException e) {
-            resp.setStatus(400);
-            ResponseUtils.setResponse(resp, e.getMessage());
+            ResponseUtils.setResponse(resp, e.getMessage(), 400);
         } catch (SQLException e) {
             resp.setStatus(500);
+        } catch (CurrencyNotFoundException e){
+            ResponseUtils.setResponse(resp, e.getMessage(), 404);
         }
     }
 }
