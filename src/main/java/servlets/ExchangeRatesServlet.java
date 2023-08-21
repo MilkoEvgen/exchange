@@ -1,7 +1,9 @@
 package servlets;
 
+import Validation.CurrencyNotFoundException;
 import Validation.ValidationException;
 import Validation.Validator;
+import dao.CurrencyDbStorage;
 import dao.ExchangeRateDbStorage;
 import model.ExchangeRate;
 import utils.ResponseUtils;
@@ -18,6 +20,7 @@ import java.util.Optional;
 @WebServlet(name = "ExchangeRatesServlet", urlPatterns = "/exchangeRates")
 public class ExchangeRatesServlet extends HttpServlet {
     private final ExchangeRateDbStorage storage = new ExchangeRateDbStorage();
+    private final CurrencyDbStorage currencyStorage = new CurrencyDbStorage();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
@@ -40,6 +43,8 @@ public class ExchangeRatesServlet extends HttpServlet {
         String rateString = req.getParameter("rate");
         try {
             Validator.areRateParametersValid(baseCode, targetCode, rateString);
+            currencyStorage.getCurrencyByCode(baseCode);
+            currencyStorage.getCurrencyByCode(targetCode);
             BigDecimal rate = new BigDecimal(rateString);
             Optional<ExchangeRate> optionalRate = storage.postRate(baseCode, targetCode, rate);
             if (optionalRate.isPresent()){
@@ -49,6 +54,8 @@ public class ExchangeRatesServlet extends HttpServlet {
             }
         } catch (ValidationException e) {
             ResponseUtils.setResponse(resp, e.getMessage(), 400);
+        } catch (CurrencyNotFoundException e){
+            ResponseUtils.setResponse(resp, e.getMessage(), 404);
         } catch (SQLException e) {
             if (e.getErrorCode() == 19) {
                 ResponseUtils.setResponse(resp, "Обменный курс " + baseCode + "/" + targetCode
