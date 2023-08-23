@@ -5,11 +5,11 @@
     <artifactId>exchange</artifactId>
     <packaging>war</packaging>
     <properties>
-        <maven.compiler.source>20</maven.compiler.source>
-        <maven.compiler.target>20</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
     </properties>
     <version>1.0-SNAPSHOT</version>
-    <name>exchange Maven Webapp</name>
+    <name>exchange</name>
     <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>
@@ -57,5 +57,11 @@
                 </configuration>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
     </build>
+
 </project>

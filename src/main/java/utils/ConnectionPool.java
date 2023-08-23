@@ -7,8 +7,7 @@ import java.sql.SQLException;
 
 public class ConnectionPool {
     private static final BasicDataSource dataSource;
-    private static final String DATABASE =
-            "jdbc:sqlite:D:\\Программирование\\JavaLessons\\exchange\\src\\main\\resources\\exchange.db";
+    private static final String DATABASE;
 
     static {
         try {
@@ -16,6 +15,10 @@ public class ConnectionPool {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+
+        String dbPath = ConnectionPool.class.getClassLoader().getResource("exchange.db").getPath();
+        DATABASE = "jdbc:sqlite:" + dbPath;
+
         dataSource = new BasicDataSource();
         dataSource.setUrl(DATABASE);
         dataSource.setMinIdle(5);
